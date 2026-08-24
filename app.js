@@ -380,10 +380,11 @@ function mostrarResultados() {
 
                 <a
                     href="${escaparHtml(
-            r.link
+            r.link_especifico || r.link
         )}"
                     target="_blank"
                     rel="noopener noreferrer"
+                    title="${r.link_especifico ? 'Ver noticia específica' : 'Ver portal'}"
                 >
                     ${escaparHtml(
             r.nombre

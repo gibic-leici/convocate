@@ -1,8 +1,9 @@
-INSTITUCION;CATEGORIA;LINK
-CONICET;PROYECTO;https://convocatorias.conicet.gov.ar/financiamiento-de-proyectos/pits/
-CONICET;PROYECTO;https://convocatorias.conicet.gov.ar/financiamiento-de-proyectos/pio/
-CONICET;PROYECTO;https://convocatorias.conicet.gov.ar/financiamiento-de-proyectos/pue/
-CONICET;PROYECTO;https://convocatorias.conicet.gov.ar/financiamiento-de-proyectos/pip/
-CONICET;PROYECTO;https://convocatorias.conicet.gov.ar/financiamiento-de-proyectos/proyectos-de-investigacion-en-temas-estrategicos-territoriales-en-red-piet-r/
-CONICET;PROYECTO;https://convocatorias.conicet.gov.ar/financiamiento-de-proyectos/pibaa/
-
+INSTITUCION;CATEGORIA;NOMBRE;LINK
+CONICET;PROYECTO;PITS;https://convocatorias.conicet.gov.ar/financiamiento-de-proyectos/pits/
+CONICET;PROYECTO;PIO;https://convocatorias.conicet.gov.ar/financiamiento-de-proyectos/pio/
+CONICET;PROYECTO;PUE;https://convocatorias.conicet.gov.ar/financiamiento-de-proyectos/pue/
+CONICET;PROYECTO;PIP;https://convocatorias.conicet.gov.ar/financiamiento-de-proyectos/pip/
+CONICET;PROYECTO;PIET-R;https://convocatorias.conicet.gov.ar/financiamiento-de-proyectos/proyectos-de-investigacion-en-temas-estrategicos-territoriales-en-red-piet-r/
+CONICET;PROYECTO;PIBAA;https://convocatorias.conicet.gov.ar/financiamiento-de-proyectos/pibaa/
+UNLP;PROYECTO;PIP;https://unlp.edu.ar/category/investigacion/
+CIC;BECA;Becas Doctorales;https://www.cic.gba.gob.ar/convocatorias/

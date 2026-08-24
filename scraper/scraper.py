@@ -6,6 +6,8 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
+import urllib.parse
+
 import requests
 from bs4 import BeautifulSoup
 
@@ -117,24 +119,33 @@ def calcular_hash(texto):
     ).hexdigest()
 
 
-def analizar_convocatoria_con_ia(texto):
+def obtener_clave_fuente(fuente):
+    """Genera una clave única compuesta para cada fuente."""
+    return f"{fuente['institucion']}_{fuente['nombre']}_{fuente['link']}"
+
+
+def analizar_convocatoria_con_ia(texto, fuente):
     """
-    Analiza el texto recuperado de la web utilizando la API de Google Gemini.
-    Devuelve un diccionario con 'convocatoria' y 'fecha_cierre'.
+    Analiza el texto recuperado utilizando la API de Google Gemini,
+    buscando específicamente la convocatoria definida en fuente['nombre'].
     """
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
         print("    [IA] GEMINI_API_KEY no configurada en el entorno.")
-        return {"convocatoria": None, "fecha_cierre": None}
+        return {"convocatoria": None, "fecha_cierre": None, "link_especifico": None}
 
-    fragmento = texto[:6000]
+    fragmento = texto[:8000]
 
     prompt = (
-        "Analiza el siguiente texto extraído de una página web universitaria/científica de convocatorias o becas.\n"
-        "Identifica si hay una convocatoria activa o fecha importante y responde ÚNICAMENTE con un objeto JSON válido "
-        "con las siguientes claves exactas:\n"
-        '  "convocatoria": Nombre o título corto de la convocatoria activa (string o null si no se identifica ninguna)\n'
-        '  "fecha_cierre": Fecha de cierre o límite en formato legible como "DD/MM/YYYY" o "DD de Mes YYYY" (string o null si no especifica)\n\n'
+        f"Analiza el siguiente texto extraído de la página web de {fuente['institucion']} ({fuente['link']}).\n"
+        f"Estamos buscando información sobre la convocatoria específica: **{fuente['nombre']}** (categoría: {fuente['categoria']}).\n\n"
+        "Instrucciones:\n"
+        f"1. Identifica si hay una convocatoria activa o publicación reciente relacionada con '{fuente['nombre']}'.\n"
+        "2. Si en el texto hay un enlace/URL específico hacia la noticia o convocatoria detallada de esa oportunidad, inclúyelo.\n"
+        "3. Responde ÚNICAMENTE con un objeto JSON válido con las siguientes claves exactas:\n"
+        '  "convocatoria": Nombre o título corto oficial de la convocatoria encontrada (string o null si no se encuentra nada sobre esta convocatoria)\n'
+        '  "fecha_cierre": Fecha de cierre o límite en formato legible como "DD/MM/YYYY" o "DD de Mes YYYY" (string o null si no especifica)\n'
+        '  "link_especifico": URL absoluta o relativa directa a la noticia/convocatoria si existe en el texto (string o null si no hay link directo)\n\n'
         f"Texto de la página:\n{fragmento}"
     )
 
@@ -152,50 +163,43 @@ def analizar_convocatoria_con_ia(texto):
             datos_resp = resp.json()
             raw_json = datos_resp["candidates"][0]["content"]["parts"][0]["text"]
             analisis = json.loads(raw_json)
+            link_esp = analisis.get("link_especifico")
+            if link_esp and not link_esp.startswith("http"):
+                link_esp = urllib.parse.urljoin(fuente["link"], link_esp)
             return {
                 "convocatoria": analisis.get("convocatoria"),
-                "fecha_cierre": analisis.get("fecha_cierre")
+                "fecha_cierre": analisis.get("fecha_cierre"),
+                "link_especifico": link_esp
             }
         else:
             print(f"    [IA Error] API devolvió HTTP {resp.status_code}")
-            return {"convocatoria": None, "fecha_cierre": None}
+            return {"convocatoria": None, "fecha_cierre": None, "link_especifico": None}
     except Exception as e:
         print(f"    [IA Error] Fallo al consultar Gemini: {e}")
-        return {"convocatoria": None, "fecha_cierre": None}
+        return {"convocatoria": None, "fecha_cierre": None, "link_especifico": None}
 
 
 def cargar_resultados_previos():
-    """Carga los resultados anteriores si existen."""
-
+    """Carga los resultados anteriores si existen, usando clave compuesta."""
     if not RESULTADOS_FILE.exists():
         return {}
 
     try:
-
-        with open(
-            RESULTADOS_FILE,
-            "r",
-            encoding="utf-8"
-        ) as f:
-
+        with open(RESULTADOS_FILE, "r", encoding="utf-8") as f:
             datos = json.load(f)
 
-        return {
-            resultado["link"]: resultado
-            for resultado in datos
-        }
+        previos = {}
+        for resultado in datos:
+            clave = obtener_clave_fuente(resultado)
+            previos[clave] = resultado
+            # Mantener compatibilidad por link
+            if resultado.get("link") not in previos:
+                previos[resultado.get("link")] = resultado
 
-    except (
-        json.JSONDecodeError,
-        KeyError,
-        TypeError
-    ):
+        return previos
 
-        print(
-            "Advertencia: no se pudieron leer "
-            "los resultados anteriores."
-        )
-
+    except (json.JSONDecodeError, KeyError, TypeError):
+        print("Advertencia: no se pudieron leer los resultados anteriores.")
         return {}
 
 
@@ -232,12 +236,25 @@ def comprobar_fuente(fuente, resultados_previos):
     """Visita una fuente y genera su resultado."""
 
     url = fuente["link"]
+    clave = obtener_clave_fuente(fuente)
+    anterior = resultados_previos.get(clave) or resultados_previos.get(url)
+    anio_actual = datetime.now(timezone.utc).year
+
+    # ----------------------------------------------------
+    # Caché Anual: Si ya se encontró la convocatoria para el año actual
+    # ----------------------------------------------------
+    if anterior and anterior.get("convocatoria_ia") and anterior.get("anio_procesado") == anio_actual:
+        print(f"    [CACHE ANUAL] Convocatoria '{anterior.get('convocatoria_ia')}' ya registrada para {anio_actual}. Se reutilizan los datos.")
+        resultado = {
+            **anterior,
+            "ultimo_acceso": datetime.now(timezone.utc).isoformat(),
+            "informacion_nueva": False,
+        }
+        return resultado
 
     resultado = {
         **fuente,
-        "ultimo_acceso": datetime.now(
-            timezone.utc
-        ).isoformat(),
+        "ultimo_acceso": datetime.now(timezone.utc).isoformat(),
 
         "funciono": False,
         "codigo_http": None,
@@ -250,7 +267,8 @@ def comprobar_fuente(fuente, resultados_previos):
         "informacion_nueva": False,
 
         "archivo_texto": None,
-
+        "link_especifico": None,
+        "anio_procesado": None,
         "error": None,
     }
 
@@ -266,117 +284,93 @@ def comprobar_fuente(fuente, resultados_previos):
 
         tiempo = time.perf_counter() - inicio
 
-        resultado["tiempo_respuesta_s"] = round(
-            tiempo,
-            3
-        )
-
-        resultado["codigo_http"] = (
-            respuesta.status_code
-        )
+        resultado["tiempo_respuesta_s"] = round(tiempo, 3)
+        resultado["codigo_http"] = respuesta.status_code
 
         respuesta.raise_for_status()
 
-        texto = extraer_texto(
-            respuesta.text
-        )
+        texto = extraer_texto(respuesta.text)
 
         resultado["funciono"] = True
-
-        resultado["contenido_extraido"] = (
-            len(texto) > 0
-        )
-
-        resultado["cantidad_caracteres"] = (
-            len(texto)
-        )
-
-        resultado["hash"] = calcular_hash(
-            texto
-        )
+        resultado["contenido_extraido"] = len(texto) > 0
+        resultado["cantidad_caracteres"] = len(texto)
+        resultado["hash"] = calcular_hash(texto)
 
         # ----------------------------------------------------
         # Comparar con la ejecución anterior
         # ----------------------------------------------------
-
-        anterior = resultados_previos.get(url)
-
         if anterior is None:
-
-            # Primera vez que vemos esta fuente
             resultado["informacion_nueva"] = True
-
             hubo_cambio = True
-
         elif anterior.get("hash") != resultado["hash"]:
-
-            # El contenido cambió
             resultado["informacion_nueva"] = True
-
             hubo_cambio = True
-
         else:
-
-            # El contenido no cambió
             resultado["informacion_nueva"] = False
-
             hubo_cambio = False
 
         # ----------------------------------------------------
-        # Guardar texto e invocar IA si es nuevo o cambió
+        # Guardar texto
         # ----------------------------------------------------
-
-        if (
-            resultado["contenido_extraido"]
-            and hubo_cambio
-        ):
-
-            resultado["archivo_texto"] = guardar_texto(
-                fuente,
-                texto
-            )
-
+        if resultado["contenido_extraido"] and hubo_cambio:
+            resultado["archivo_texto"] = guardar_texto(fuente, texto)
         elif anterior is not None:
-
-            # Conservar la referencia al archivo existente
-            resultado["archivo_texto"] = (
-                anterior.get("archivo_texto")
-            )
+            resultado["archivo_texto"] = anterior.get("archivo_texto")
 
         # ----------------------------------------------------
         # Análisis con IA (gemini)
         # ----------------------------------------------------
-
         necesita_ia = hubo_cambio or (anterior is not None and not anterior.get("convocatoria_ia"))
 
         if resultado["contenido_extraido"] and necesita_ia:
-            print("    Analizando convocatoria con IA (Gemini)...")
-            datos_ia = analizar_convocatoria_con_ia(texto)
+            print(f"    Analizando convocatoria '{fuente['nombre']}' con IA (Gemini)...")
+            datos_ia = analizar_convocatoria_con_ia(texto, fuente)
+
+            # Si Gemini sugiere una URL más específica a la noticia y no se obtuvo fecha exacta
+            link_esp = datos_ia.get("link_especifico")
+            if link_esp and link_esp != url:
+                print(f"    [Navegación] Siguiendo enlace a noticia específica: {link_esp}")
+                try:
+                    resp_sub = requests.get(link_esp, headers=HEADERS, timeout=TIMEOUT)
+                    if resp_sub.status_code == 200:
+                        texto_sub = extraer_texto(resp_sub.text)
+                        if len(texto_sub) > 0:
+                            datos_ia_sub = analizar_convocatoria_con_ia(texto_sub, {**fuente, "link": link_esp})
+                            if datos_ia_sub.get("convocatoria"):
+                                datos_ia["convocatoria"] = datos_ia_sub.get("convocatoria")
+                            if datos_ia_sub.get("fecha_cierre"):
+                                datos_ia["fecha_cierre"] = datos_ia_sub.get("fecha_cierre")
+                except Exception as sub_e:
+                    print(f"    [Advertencia] No se pudo acceder a la sub-página: {sub_e}")
+
             resultado["convocatoria_ia"] = datos_ia.get("convocatoria")
             resultado["fecha_cierre_ia"] = datos_ia.get("fecha_cierre")
+            resultado["link_especifico"] = datos_ia.get("link_especifico")
+
+            if resultado["convocatoria_ia"]:
+                resultado["anio_procesado"] = anio_actual
+
         elif anterior is not None:
             resultado["convocatoria_ia"] = anterior.get("convocatoria_ia")
             resultado["fecha_cierre_ia"] = anterior.get("fecha_cierre_ia")
+            resultado["link_especifico"] = anterior.get("link_especifico")
+            resultado["anio_procesado"] = anterior.get("anio_procesado")
         else:
             resultado["convocatoria_ia"] = None
             resultado["fecha_cierre_ia"] = None
+            resultado["link_especifico"] = None
+            resultado["anio_procesado"] = None
 
     except requests.exceptions.RequestException as e:
 
         tiempo = time.perf_counter() - inicio
 
-        resultado["tiempo_respuesta_s"] = round(
-            tiempo,
-            3
-        )
-
+        resultado["tiempo_respuesta_s"] = round(tiempo, 3)
         resultado["error"] = str(e)
 
     except Exception as e:
 
-        resultado["error"] = (
-            f"Error inesperado: {e}"
-        )
+        resultado["error"] = f"Error inesperado: {e}"
 
     return resultado
 

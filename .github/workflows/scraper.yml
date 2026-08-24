@@ -2,8 +2,8 @@ name: Scraper y Despliegue a GitHub Pages
 
 on:
   schedule:
-    # Se ejecuta automáticamente todos los días a las 08:00 UTC (05:00 AM hora Argentina)
-    - cron: '0 8 * * *'
+    # Se ejecuta automáticamente todos los lunes a las 08:00 UTC (05:00 AM hora Argentina)
+    - cron: '0 8 * * 1'
   workflow_dispatch: # Permite disparar la ejecución manualmente desde GitHub
 
 permissions:
