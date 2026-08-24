@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Radar de Convocatorias</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header>
+        <div class="header-content">
+            <h1>Radar de Convocatorias</h1>
+
+            <p>
+                Seguimiento de convocatorias, becas y oportunidades
+                de investigación
+            </p>
+        </div>
+    </header>
+
+
+    <main>
+
+        <!-- =====================================================
+         Resumen
+         ===================================================== -->
+
+        <section class="resumen">
+
+            <div class="resumen-card">
+                <span class="resumen-label">
+                    Fuentes
+                </span>
+
+                <strong id="total-fuentes">
+                    -
+                </strong>
+            </div>
+
+
+            <div class="resumen-card">
+                <span class="resumen-label">
+                    Funcionando
+                </span>
+
+                <strong id="fuentes-ok">
+                    -
+                </strong>
+            </div>
+
+
+            <div class="resumen-card">
+                <span class="resumen-label">
+                    Con problemas
+                </span>
+
+                <strong id="fuentes-error">
+                    -
+                </strong>
+            </div>
+
+
+            <div class="resumen-card">
+                <span class="resumen-label">
+                    Con cambios
+                </span>
+
+                <strong id="fuentes-cambio">
+                    -
+                </strong>
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+         Filtros
+         ===================================================== -->
+
+        <section class="filtros">
+
+            <label>
+                Institución
+
+                <select id="filtro-institucion">
+                    <option value="">
+                        Todas
+                    </option>
+                </select>
+            </label>
+
+
+            <label>
+                Categoría
+
+                <select id="filtro-categoria">
+                    <option value="">
+                        Todas
+                    </option>
+                </select>
+            </label>
+
+
+            <label>
+                Estado
+
+                <select id="filtro-estado">
+                    <option value="">
+                        Todos
+                    </option>
+
+                    <option value="ok">
+                        Funcionando
+                    </option>
+
+                    <option value="error">
+                        Con problemas
+                    </option>
+
+                    <option value="cambio">
+                        Con cambios
+                    </option>
+                </select>
+            </label>
+
+        </section>
+
+
+        <!-- =====================================================
+         Tabla
+         ===================================================== -->
+
+        <section class="tabla-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Institución
+                        </th>
+
+                        <th>
+                            Categoría
+                        </th>
+
+                        <th>
+                            Recurso
+                        </th>
+
+                        <th>
+                            Acceso
+                        </th>
+
+                        <th>
+                            Último acceso
+                        </th>
+
+                        <th>
+                            Cambio
+                        </th>
+
+                        <!-- IA -->
+
+                        <th>
+                            Convocatoria
+                        </th>
+
+                        <th>
+                            Fecha de cierre
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="tabla-resultados">
+
+                    <tr>
+                        <td colspan="8" class="cargando">
+                            Cargando...
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </section>
+
+
+        <!-- =====================================================
+         Información
+         ===================================================== -->
+
+        <section class="pie">
+
+            <span id="ultima-actualizacion">
+                -
+            </span>
+
+        </section>
+
+    </main>
+
+
+    <script src="app.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,8 @@
+INSTITUCION;CATEGORIA;LINK
+CONICET;PROYECTO;https://convocatorias.conicet.gov.ar/financiamiento-de-proyectos/pits/
+CONICET;PROYECTO;https://convocatorias.conicet.gov.ar/financiamiento-de-proyectos/pio/
+CONICET;PROYECTO;https://convocatorias.conicet.gov.ar/financiamiento-de-proyectos/pue/
+CONICET;PROYECTO;https://convocatorias.conicet.gov.ar/financiamiento-de-proyectos/pip/
+CONICET;PROYECTO;https://convocatorias.conicet.gov.ar/financiamiento-de-proyectos/proyectos-de-investigacion-en-temas-estrategicos-territoriales-en-red-piet-r/
+CONICET;PROYECTO;https://convocatorias.conicet.gov.ar/financiamiento-de-proyectos/pibaa/
+

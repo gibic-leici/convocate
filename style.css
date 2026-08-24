@@ -1,0 +1,381 @@
+* {
+    box-sizing: border-box;
+}
+
+
+body {
+    margin: 0;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background: #f4f6f8;
+
+    color: #263238;
+}
+
+
+header {
+    background: #263238;
+
+    color: white;
+
+    padding: 28px 20px;
+
+    box-shadow:
+        0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+
+.header-content {
+    max-width: 1400px;
+
+    margin: auto;
+}
+
+
+header h1 {
+    margin: 0 0 8px 0;
+
+    font-size: 28px;
+}
+
+
+header p {
+    margin: 0;
+
+    color: #cfd8dc;
+
+    font-size: 15px;
+}
+
+
+main {
+    max-width: 1400px;
+
+    margin: 30px auto;
+
+    padding: 0 20px;
+}
+
+
+/* ============================================================
+   Resumen
+   ============================================================ */
+
+.resumen {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 15px;
+
+    margin-bottom: 25px;
+}
+
+
+.resumen-card {
+    background: white;
+
+    border-radius: 8px;
+
+    padding: 18px 20px;
+
+    box-shadow:
+        0 1px 4px rgba(0, 0, 0, 0.10);
+}
+
+
+.resumen-label {
+    display: block;
+
+    color: #78909c;
+
+    font-size: 13px;
+
+    margin-bottom: 8px;
+}
+
+
+.resumen-card strong {
+    font-size: 28px;
+}
+
+
+/* ============================================================
+   Filtros
+   ============================================================ */
+
+.filtros {
+    display: flex;
+
+    gap: 20px;
+
+    background: white;
+
+    padding: 18px;
+
+    border-radius: 8px;
+
+    margin-bottom: 20px;
+
+    box-shadow:
+        0 1px 4px rgba(0, 0, 0, 0.10);
+}
+
+
+.filtros label {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 6px;
+
+    font-size: 13px;
+
+    color: #546e7a;
+}
+
+
+.filtros select {
+    min-width: 180px;
+
+    padding: 8px 10px;
+
+    border:
+        1px solid #cfd8dc;
+
+    border-radius: 5px;
+
+    background: white;
+
+    font-size: 14px;
+}
+
+
+/* ============================================================
+   Tabla
+   ============================================================ */
+
+.tabla-container {
+    background: white;
+
+    border-radius: 8px;
+
+    overflow-x: auto;
+
+    box-shadow:
+        0 1px 4px rgba(0, 0, 0, 0.10);
+}
+
+
+table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    font-size: 14px;
+}
+
+
+thead {
+    background: #eceff1;
+}
+
+
+th {
+    text-align: left;
+
+    padding: 13px 12px;
+
+    color: #455a64;
+
+    font-size: 12px;
+
+    text-transform: uppercase;
+
+    white-space: nowrap;
+}
+
+
+td {
+    padding: 13px 12px;
+
+    border-top:
+        1px solid #eceff1;
+
+    vertical-align: middle;
+}
+
+
+tbody tr:hover {
+    background: #fafafa;
+}
+
+
+/* ============================================================
+   Estados
+   ============================================================ */
+
+.estado {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    font-weight: bold;
+
+    white-space: nowrap;
+}
+
+
+.estado-ok {
+    color: #2e7d32;
+}
+
+
+.estado-error {
+    color: #c62828;
+}
+
+
+.estado-cambio {
+    color: #ef6c00;
+}
+
+
+.estado-sin-cambio {
+    color: #78909c;
+}
+
+
+/* ============================================================
+   Enlaces
+   ============================================================ */
+
+a {
+    color: #1565c0;
+
+    text-decoration: none;
+}
+
+
+a:hover {
+    text-decoration: underline;
+}
+
+
+/* ============================================================
+   Campos de IA
+   ============================================================ */
+
+.ia-pendiente {
+    color: #b0bec5;
+
+    font-style: italic;
+
+    white-space: nowrap;
+}
+
+
+.fecha {
+    white-space: nowrap;
+}
+
+
+.badge {
+    display: inline-block;
+
+    padding: 4px 8px;
+
+    border-radius: 12px;
+
+    font-size: 12px;
+
+    font-weight: bold;
+}
+
+
+.badge-pendiente {
+    background: #eceff1;
+
+    color: #78909c;
+}
+
+
+.badge-fecha {
+    display: inline-block;
+
+    padding: 4px 8px;
+
+    border-radius: 12px;
+
+    font-size: 12px;
+
+    font-weight: bold;
+
+    background: #e8f5e9;
+
+    color: #2e7d32;
+
+    border: 1px solid #c8e6c9;
+}
+
+
+/* ============================================================
+   Cargando
+   ============================================================ */
+
+.cargando {
+    text-align: center;
+
+    padding: 40px;
+
+    color: #78909c;
+}
+
+
+/* ============================================================
+   Pie
+   ============================================================ */
+
+.pie {
+    margin-top: 20px;
+
+    color: #78909c;
+
+    font-size: 13px;
+
+    text-align: right;
+}
+
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+
+@media (max-width: 900px) {
+
+    .resumen {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+}
+
+
+@media (max-width: 600px) {
+
+    .resumen {
+        grid-template-columns: 1fr;
+    }
+
+    .filtros {
+        flex-direction: column;
+    }
+
+}
