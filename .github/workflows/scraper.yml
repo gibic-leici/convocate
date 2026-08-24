@@ -54,7 +54,7 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add data/ index.html style.css app.js web/
-          git diff --quiet && git diff --staged --quiet || (git commit -m "auto: actualización diaria de convocatorias" && git push)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "auto: actualización de convocatorias" && git pull --rebase origin master && git push)
 
       - name: Configurar GitHub Pages
         uses: actions/configure-pages@v5
