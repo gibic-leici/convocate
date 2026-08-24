@@ -149,7 +149,7 @@ def analizar_convocatoria_con_ia(texto, fuente):
         f"Texto de la página:\n{fragmento}"
     )
 
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
     payload = {
         "contents": [{"parts": [{"text": prompt}]}],
         "generationConfig": {
@@ -172,7 +172,7 @@ def analizar_convocatoria_con_ia(texto, fuente):
                 "link_especifico": link_esp
             }
         else:
-            print(f"    [IA Error] API devolvió HTTP {resp.status_code}")
+            print(f"    [IA Error] API devolvió HTTP {resp.status_code}: {resp.text[:300]}")
             return {"convocatoria": None, "fecha_cierre": None, "link_especifico": None}
     except Exception as e:
         print(f"    [IA Error] Fallo al consultar Gemini: {e}")
