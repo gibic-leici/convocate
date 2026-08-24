@@ -149,7 +149,7 @@ def analizar_convocatoria_con_ia(texto, fuente):
         f"Texto de la página:\n{fragmento}"
     )
 
-    modelos = ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-1.5-flash-latest", "gemini-2.0-flash-latest"]
+    modelos = ["gemini-3.6-flash", "gemini-3.1-pro-preview", "gemini-2.5-flash", "gemini-2.5-pro"]
 
     for modelo in modelos:
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{modelo}:generateContent?key={api_key}"
