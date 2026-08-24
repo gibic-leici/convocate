@@ -253,6 +253,16 @@ tbody tr:hover {
 }
 
 
+/* Fila con alerta de cambio de contenido */
+.fila-alerta {
+    background: #fff8e1 !important;
+}
+
+.fila-alerta:hover {
+    background: #fff3e0 !important;
+}
+
+
 /* ============================================================
    Enlaces
    ============================================================ */
