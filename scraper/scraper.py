@@ -131,7 +131,7 @@ def analizar_convocatoria_con_ia(texto, fuente):
     """
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
-        print("    [IA] GEMINI_API_KEY no configurada en el entorno.")
+        print("    [IA Error] GEMINI_API_KEY no está configurada o está vacía en las variables de entorno.")
         return {"convocatoria": None, "fecha_cierre": None, "link_especifico": None}
 
     fragmento = texto[:8000]
@@ -149,34 +149,51 @@ def analizar_convocatoria_con_ia(texto, fuente):
         f"Texto de la página:\n{fragmento}"
     )
 
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
-    payload = {
-        "contents": [{"parts": [{"text": prompt}]}],
-        "generationConfig": {
-            "responseMimeType": "application/json"
-        }
-    }
+    modelos = ["gemini-1.5-flash", "gemini-2.0-flash", "gemini-1.5-pro"]
 
-    try:
-        resp = requests.post(url, json=payload, timeout=30)
-        if resp.status_code == 200:
-            datos_resp = resp.json()
-            raw_json = datos_resp["candidates"][0]["content"]["parts"][0]["text"]
-            analisis = json.loads(raw_json)
-            link_esp = analisis.get("link_especifico")
-            if link_esp and not link_esp.startswith("http"):
-                link_esp = urllib.parse.urljoin(fuente["link"], link_esp)
-            return {
-                "convocatoria": analisis.get("convocatoria"),
-                "fecha_cierre": analisis.get("fecha_cierre"),
-                "link_especifico": link_esp
+    for modelo in modelos:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{modelo}:generateContent?key={api_key}"
+        payload = {
+            "contents": [{"parts": [{"text": prompt}]}],
+            "generationConfig": {
+                "responseMimeType": "application/json"
             }
-        else:
-            print(f"    [IA Error] API devolvió HTTP {resp.status_code}: {resp.text[:300]}")
-            return {"convocatoria": None, "fecha_cierre": None, "link_especifico": None}
-    except Exception as e:
-        print(f"    [IA Error] Fallo al consultar Gemini: {e}")
-        return {"convocatoria": None, "fecha_cierre": None, "link_especifico": None}
+        }
+
+        try:
+            resp = requests.post(url, json=payload, timeout=30)
+            if resp.status_code == 200:
+                datos_resp = resp.json()
+                raw_text = datos_resp["candidates"][0]["content"]["parts"][0]["text"].strip()
+
+                # Limpiar bloques markdown ```json ... ``` si la IA los incluye
+                raw_json = raw_text
+                if "```" in raw_json:
+                    partes = raw_json.split("```")
+                    for p in partes:
+                        limpio = p.strip()
+                        if limpio.startswith("json"):
+                            limpio = limpio[4:].strip()
+                        if limpio.startswith("{") and limpio.endswith("}"):
+                            raw_json = limpio
+                            break
+
+                analisis = json.loads(raw_json)
+                link_esp = analisis.get("link_especifico")
+                if link_esp and not link_esp.startswith("http"):
+                    link_esp = urllib.parse.urljoin(fuente["link"], link_esp)
+                return {
+                    "convocatoria": analisis.get("convocatoria"),
+                    "fecha_cierre": analisis.get("fecha_cierre"),
+                    "link_especifico": link_esp
+                }
+            else:
+                print(f"    [IA Warning] Modelo {modelo} devolvió HTTP {resp.status_code}: {resp.text[:200]}")
+        except Exception as e:
+            print(f"    [IA Warning] Fallo al consultar Gemini con modelo {modelo}: {e}")
+
+    print("    [IA Error] Ningún modelo de Gemini pudo procesar la solicitud.")
+    return {"convocatoria": None, "fecha_cierre": None, "link_especifico": None}
 
 
 def cargar_resultados_previos():
