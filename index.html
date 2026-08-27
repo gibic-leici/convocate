@@ -3,215 +3,43 @@
 
 <head>
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Radar de Convocatorias</title>
-
+    <!-- Pico.css para estilos semánticos y simples -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
+    <main class="container">
+        <!-- Barra superior permanente -->
+        <nav class="barra-superior">
+            <ul>
+                <li><strong>Convocatorias</strong></li>
+            </ul>
+            <ul>
+                <li>
+                    <select id="filtro-institucion" aria-label="Filtrar por Institución">
+                        <option value="">Institución: Todas</option>
+                    </select>
+                </li>
+                <li>
+                    <select id="filtro-categoria" aria-label="Filtrar por Categoría">
+                        <option value="">Categoría: Todas</option>
+                    </select>
+                </li>
+            </ul>
+        </nav>
 
-    <header>
-        <div class="header-content">
-            <h1>Radar de Convocatorias</h1>
-
-            <p>
-                Seguimiento de convocatorias, becas y oportunidades
-                de investigación
-            </p>
-        </div>
-    </header>
-
-
-    <main>
-
-        <!-- =====================================================
-         Resumen
-         ===================================================== -->
-
-        <section class="resumen">
-
-            <div class="resumen-card">
-                <span class="resumen-label">
-                    Fuentes
-                </span>
-
-                <strong id="total-fuentes">
-                    -
-                </strong>
-            </div>
-
-
-            <div class="resumen-card">
-                <span class="resumen-label">
-                    Funcionando
-                </span>
-
-                <strong id="fuentes-ok">
-                    -
-                </strong>
-            </div>
-
-
-            <div class="resumen-card">
-                <span class="resumen-label">
-                    Con problemas
-                </span>
-
-                <strong id="fuentes-error">
-                    -
-                </strong>
-            </div>
-
-
-            <div class="resumen-card">
-                <span class="resumen-label">
-                    Con cambios
-                </span>
-
-                <strong id="fuentes-cambio">
-                    -
-                </strong>
-            </div>
-
+        <!-- Resultados -->
+        <section id="contenedor-convocatorias" aria-busy="true">
+            <!-- Las tarjetas se inyectan acá vía JS -->
         </section>
-
-
-        <!-- =====================================================
-         Filtros
-         ===================================================== -->
-
-        <section class="filtros">
-
-            <label>
-                Institución
-
-                <select id="filtro-institucion">
-                    <option value="">
-                        Todas
-                    </option>
-                </select>
-            </label>
-
-
-            <label>
-                Categoría
-
-                <select id="filtro-categoria">
-                    <option value="">
-                        Todas
-                    </option>
-                </select>
-            </label>
-
-
-            <label>
-                Estado
-
-                <select id="filtro-estado">
-                    <option value="">
-                        Todos
-                    </option>
-
-                    <option value="ok">
-                        Funcionando
-                    </option>
-
-                    <option value="error">
-                        Con problemas
-                    </option>
-
-                    <option value="cambio">
-                        Con cambios
-                    </option>
-                </select>
-            </label>
-
-        </section>
-
-
-        <!-- =====================================================
-         Tabla
-         ===================================================== -->
-
-        <section class="tabla-container">
-
-            <table>
-
-                <thead>
-
-                    <tr>
-
-                        <th>
-                            Institución
-                        </th>
-
-                        <th>
-                            Categoría
-                        </th>
-
-                        <th>
-                            Recurso
-                        </th>
-
-                        <th>
-                            Acceso
-                        </th>
-
-                        <th>
-                            Último acceso
-                        </th>
-
-                        <th>
-                            Cambio
-                        </th>
-
-                        <th>
-                            Fecha de apertura
-                        </th>
-
-                        <th>
-                            Fecha de cierre
-                        </th>
-
-                    </tr>
-
-                </thead>
-
-                <tbody id="tabla-resultados">
-
-                    <tr>
-                        <td colspan="8" class="cargando">
-                            Cargando...
-                        </td>
-                    </tr>
-
-                </tbody>
-
-            </table>
-
-        </section>
-
-
-        <!-- =====================================================
-         Información
-         ===================================================== -->
-
-        <section class="pie">
-
-            <span id="ultima-actualizacion">
-                -
-            </span>
-
-        </section>
-
     </main>
 
-
+    <!-- PapaParse para CSV -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <script src="app.js"></script>
-
 </body>
 
 </html>

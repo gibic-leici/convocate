@@ -1,148 +1,148 @@
-let resultados = [];
+const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTIEHTQiDz-03BbqdigDPQ_ypQS3ybXdD3FKgcXLXVZjcBF4ClMplm-PeReVrIMblvByNhGG2Vex9hA/pub?output=csv';
 
-// ============================================================
-// Cargar datos
-// ============================================================
+let convocatoriasData = [];
 
-async function cargarResultados() {
-    try {
-        let respuesta;
-        try {
-            respuesta = await fetch("data/resultados.json");
-            if (!respuesta.ok) throw new Error();
-        } catch (e) {
-            respuesta = await fetch("../data/resultados.json");
+document.addEventListener('DOMContentLoaded', () => {
+    cargarDatos();
+
+    // Escuchar cambios en los filtros para re-dibujar
+    document.getElementById('filtro-institucion').addEventListener('change', renderizarTarjetas);
+    document.getElementById('filtro-categoria').addEventListener('change', renderizarTarjetas);
+});
+
+function cargarDatos() {
+    Papa.parse(CSV_URL, {
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        complete: function (results) {
+            // Guardamos solo las filas que tengan al menos una Institución o Nombre
+            convocatoriasData = results.data.filter(row => row.INSTITUCION || row.NOMBRE);
+            poblarFiltros();
+            renderizarTarjetas();
+            document.getElementById('contenedor-convocatorias').setAttribute('aria-busy', 'false');
+        },
+        error: function (error) {
+            console.error("Error al cargar el CSV:", error);
+            document.getElementById('contenedor-convocatorias').innerHTML = '<p>Error al cargar los datos. Verifique su conexión o el enlace de la planilla.</p>';
+            document.getElementById('contenedor-convocatorias').setAttribute('aria-busy', 'false');
         }
-        if (!respuesta.ok) throw new Error(`HTTP ${respuesta.status}`);
-        resultados = await respuesta.json();
-        inicializarFiltros();
-        actualizarResumen();
-        mostrarResultados();
-        actualizarFecha();
-    } catch (error) {
-        console.error(error);
-        document.getElementById("tabla-resultados").innerHTML =
-            `<tr><td colspan="8" class="cargando">No se pudieron cargar los resultados.</td></tr>`;
-    }
+    });
 }
 
-// ============================================================
-// Filtros
-// ============================================================
+function poblarFiltros() {
+    const instituciones = new Set();
+    const categorias = new Set();
 
-function inicializarFiltros() {
-    const instituciones = [...new Set(resultados.map(r => r.institucion))].sort();
-    const categorias    = [...new Set(resultados.map(r => r.categoria))].sort();
-
-    const selInst = document.getElementById("filtro-institucion");
-    const selCat  = document.getElementById("filtro-categoria");
-
-    instituciones.forEach(v => { const o = document.createElement("option"); o.value = o.textContent = v; selInst.appendChild(o); });
-    categorias.forEach(v    => { const o = document.createElement("option"); o.value = o.textContent = v; selCat.appendChild(o); });
-
-    selInst.addEventListener("change", mostrarResultados);
-    selCat.addEventListener("change", mostrarResultados);
-    document.getElementById("filtro-estado").addEventListener("change", mostrarResultados);
-}
-
-// ============================================================
-// Resumen
-// ============================================================
-
-function actualizarResumen() {
-    document.getElementById("total-fuentes").textContent   = resultados.length;
-    document.getElementById("fuentes-ok").textContent      = resultados.filter(r => r.funciono).length;
-    document.getElementById("fuentes-error").textContent   = resultados.filter(r => !r.funciono).length;
-    document.getElementById("fuentes-cambio").textContent  = resultados.filter(r => r.contenido_cambio).length;
-}
-
-// ============================================================
-// Mostrar tabla
-// ============================================================
-
-function mostrarResultados() {
-    const institucion = document.getElementById("filtro-institucion").value;
-    const categoria   = document.getElementById("filtro-categoria").value;
-    const estado      = document.getElementById("filtro-estado").value;
-
-    const filtrados = resultados.filter(r => {
-        if (institucion && r.institucion !== institucion) return false;
-        if (categoria   && r.categoria   !== categoria)   return false;
-        if (estado === "ok"     && !r.funciono)           return false;
-        if (estado === "error"  &&  r.funciono)           return false;
-        if (estado === "cambio" && !r.contenido_cambio)   return false;
-        return true;
+    // Recorremos los datos para encontrar todas las opciones únicas
+    convocatoriasData.forEach(item => {
+        if (item.INSTITUCION && item.INSTITUCION !== '-') instituciones.add(item.INSTITUCION.trim());
+        if (item.CATEGORIA && item.CATEGORIA !== '-') categorias.add(item.CATEGORIA.trim());
     });
 
-    const tbody = document.getElementById("tabla-resultados");
-    tbody.innerHTML = "";
+    const selectInst = document.getElementById('filtro-institucion');
+    // Ordenamos alfabéticamente
+    Array.from(instituciones).sort().forEach(inst => {
+        const option = document.createElement('option');
+        option.value = inst;
+        option.textContent = inst;
+        selectInst.appendChild(option);
+    });
 
-    filtrados.forEach(r => {
-        const fila = document.createElement("tr");
-        if (r.contenido_cambio) fila.classList.add("fila-alerta");
+    const selectCat = document.getElementById('filtro-categoria');
+    Array.from(categorias).sort().forEach(cat => {
+        const option = document.createElement('option');
+        option.value = cat;
+        option.textContent = cat;
+        selectCat.appendChild(option);
+    });
+}
 
-        // Acceso
-        const accesoHtml = r.funciono
-            ? `<span class="estado estado-ok">● OK</span><br><small>HTTP ${r.codigo_http}</small>`
-            : `<span class="estado estado-error">● ERROR</span><br><small>${escaparHtml(r.error || "Sin información")}</small>`;
+function parseFecha(fechaStr) {
+    if (!fechaStr || fechaStr.trim() === '-' || fechaStr.trim() === '') return null;
+    const partes = fechaStr.split('/');
+    if (partes.length !== 3) return null; // Formato esperado DD/MM/YYYY
+    return new Date(partes[2], partes[1] - 1, partes[0]);
+}
 
-        // Cambio
-        const cambioHtml = r.contenido_cambio
-            ? `<span class="estado estado-cambio">⚠️ Verificar</span>`
-            : `<span class="estado estado-sin-cambio">Sin cambios</span>`;
+function renderizarTarjetas() {
+    const contenedor = document.getElementById('contenedor-convocatorias');
+    const filtroInst = document.getElementById('filtro-institucion').value;
+    const filtroCat = document.getElementById('filtro-categoria').value;
 
-        // Fechas del Sheet
-        const aperturaHtml = r.fecha_apertura
-            ? `<span class="badge-fecha">${escaparHtml(r.fecha_apertura)}</span>`
-            : `<span class="ia-pendiente">—</span>`;
+    contenedor.innerHTML = '';
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0); // Normalizar a medianoche para cálculo justo
 
-        const cierreHtml = r.fecha_cierre
-            ? `<span class="badge-fecha">${escaparHtml(r.fecha_cierre)}</span>`
-            : `<span class="ia-pendiente">—</span>`;
+    const filtrados = convocatoriasData.filter(item => {
+        const inst = item.INSTITUCION ? item.INSTITUCION.trim() : '';
+        const cat = item.CATEGORIA ? item.CATEGORIA.trim() : '';
 
-        fila.innerHTML = `
-            <td><strong>${escaparHtml(r.institucion)}</strong></td>
-            <td>${escaparHtml(r.categoria)}</td>
-            <td><a href="${escaparHtml(r.link)}" target="_blank" rel="noopener noreferrer">${escaparHtml(r.nombre)}</a></td>
-            <td>${accesoHtml}</td>
-            <td class="fecha">${formatearFecha(r.ultimo_acceso)}</td>
-            <td>${cambioHtml}</td>
-            <td>${aperturaHtml}</td>
-            <td>${cierreHtml}</td>
-        `;
-        tbody.appendChild(fila);
+        const pasaInst = filtroInst === '' || inst === filtroInst;
+        const pasaCat = filtroCat === '' || cat === filtroCat;
+        return pasaInst && pasaCat;
     });
 
     if (filtrados.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="cargando">No hay fuentes que coincidan con los filtros.</td></tr>`;
+        contenedor.innerHTML = '<p>No se encontraron convocatorias que coincidan con los filtros.</p>';
+        return;
     }
+
+    filtrados.forEach(item => {
+        const fechaAperturaStr = item.FECHA_APERTURA && item.FECHA_APERTURA !== '-' ? item.FECHA_APERTURA : '?';
+        const fechaCierreStr = item.FECHA_CIERRE && item.FECHA_CIERRE !== '-' ? item.FECHA_CIERRE : '?';
+
+        const fechaApertura = parseFecha(item.FECHA_APERTURA);
+        const fechaCierre = parseFecha(item.FECHA_CIERRE);
+
+        let estado = '';
+        let claseEstado = ''; 
+
+        // Lógica de estado explícito
+        if (item.NOMBRE && item.NOMBRE.toLowerCase().includes('sin convocatoria')) {
+            estado = 'No hay convocatoria';
+            claseEstado = 'estado-gris';
+        } else if (!fechaCierre || !fechaApertura) {
+            estado = 'Falta información';
+            claseEstado = 'estado-naranja';
+        } else {
+            if (hoy < fechaApertura) {
+                estado = 'Próxima a abrir';
+                claseEstado = 'estado-gris';
+            } else if (hoy > fechaCierre) {
+                estado = 'Vencida';
+                claseEstado = 'estado-gris';
+            } else {
+                const diffTiempo = Math.ceil((fechaCierre - hoy) / (1000 * 60 * 60 * 24));
+                estado = `Abierta (cierra en ${diffTiempo} días)`;
+                claseEstado = 'estado-verde';
+            }
+        }
+        const linkHTML = item.LINK && item.LINK !== '-' && item.LINK !== ''
+            ? `<a href="${item.LINK}" target="_blank" style="text-decoration: none; font-weight: bold;">Enlace ↗</a>`
+            : '';
+
+        const institucion = item.INSTITUCION || 'N/A';
+        const categoria = item.CATEGORIA || 'N/A';
+        const nombre = item.NOMBRE || 'Sin nombre';
+
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'convocatoria-item';
+        
+        let metaHtml = `<strong>${institucion}</strong> | <span>${categoria}</span> | <span>Del ${fechaAperturaStr} al ${fechaCierreStr}</span> | <span class="badge ${claseEstado}">${estado}</span>`;
+        if (linkHTML) {
+            metaHtml += ` | ${linkHTML}`;
+        }
+
+        itemDiv.innerHTML = `
+            <div class="item-linea-1">
+                <strong>Nombre:</strong> ${nombre}
+            </div>
+            <div class="item-linea-2" style="color: var(--muted-color, #757575);">
+                ${metaHtml}
+            </div>
+        `;
+        
+        contenedor.appendChild(itemDiv);
+    });
 }
-
-// ============================================================
-// Utilidades
-// ============================================================
-
-function formatearFecha(fecha) {
-    if (!fecha) return "—";
-    return new Date(fecha).toLocaleString("es-AR", { dateStyle: "short", timeStyle: "short" });
-}
-
-function actualizarFecha() {
-    if (resultados.length === 0) return;
-    const fechas = resultados.map(r => r.ultimo_acceso).filter(Boolean).map(f => new Date(f));
-    const ultima = new Date(Math.max(...fechas));
-    document.getElementById("ultima-actualizacion").textContent = "Último chequeo: " + ultima.toLocaleString("es-AR");
-}
-
-function escaparHtml(texto) {
-    if (texto === null || texto === undefined) return "";
-    const div = document.createElement("div");
-    div.textContent = String(texto);
-    return div.innerHTML;
-}
-
-// ============================================================
-// Inicio
-// ============================================================
-
-cargarResultados();
