@@ -119,30 +119,25 @@ function renderizarTarjetas() {
             }
         }
         const linkHTML = item.LINK && item.LINK !== '-' && item.LINK !== ''
-            ? `<a href="${item.LINK}" target="_blank" style="text-decoration: none; font-weight: bold;">Enlace ↗</a>`
-            : '';
+            ? `<a href="${item.LINK}" target="_blank">Acceder</a>`
+            : '-';
 
         const institucion = item.INSTITUCION || 'N/A';
         const categoria = item.CATEGORIA || 'N/A';
         const nombre = item.NOMBRE || 'Sin nombre';
 
-        const itemDiv = document.createElement('div');
-        itemDiv.className = 'convocatoria-item';
+        const tr = document.createElement('tr');
         
-        let metaHtml = `<strong>${institucion}</strong> | <span>${categoria}</span> | <span>Del ${fechaAperturaStr} al ${fechaCierreStr}</span> | <span class="badge ${claseEstado}">${estado}</span>`;
-        if (linkHTML) {
-            metaHtml += ` | ${linkHTML}`;
-        }
-
-        itemDiv.innerHTML = `
-            <div class="item-linea-1">
-                <strong>Nombre:</strong> ${nombre}
-            </div>
-            <div class="item-linea-2" style="color: var(--muted-color, #757575);">
-                ${metaHtml}
-            </div>
+        tr.innerHTML = `
+            <td>${institucion}</td>
+            <td>${categoria}</td>
+            <td><strong>${nombre}</strong></td>
+            <td><span class="badge ${claseEstado}">${estado}</span></td>
+            <td>${fechaAperturaStr}</td>
+            <td>${fechaCierreStr}</td>
+            <td>${linkHTML}</td>
         `;
         
-        contenedor.appendChild(itemDiv);
+        contenedor.appendChild(tr);
     });
 }
