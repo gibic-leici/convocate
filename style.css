@@ -328,6 +328,12 @@ a:hover {
     border: 1px solid #c8e6c9;
 }
 
+.estado-violeta {
+    background: #ede7f6;
+    color: #512da8;
+    border: 1px solid #d1c4e9;
+}
+
 .estado-gris {
     background: #eceff1;
     color: #78909c;
