@@ -94,8 +94,8 @@ function calcularEstado(item, hoy) {
 
     if (hoy < fechaApertura) {
         return {
-            tipo: 'Próxima a abrir',
-            texto: 'Próxima a abrir',
+            tipo: 'Apertura programada',
+            texto: 'Apertura programada',
             clase: 'estado-violeta'
         };
     }
@@ -149,7 +149,7 @@ function poblarFiltros() {
     });
 
     const selectEstado = document.getElementById('filtro-estado');
-    const ordenPreferido = ['Abierta', 'Próxima a abrir', 'Informativo', 'Falta información', 'Vencida', 'No hay convocatoria', 'Discontinuada'];
+    const ordenPreferido = ['Abierta', 'Apertura programada', 'Informativo', 'Falta información', 'Vencida', 'No hay convocatoria', 'Discontinuada'];
     const estadosOrdenados = Array.from(estados).sort((a, b) => {
         const idxA = ordenPreferido.indexOf(a);
         const idxB = ordenPreferido.indexOf(b);
