@@ -340,6 +340,20 @@ a:hover {
     border: 1px solid #cfd8dc;
 }
 
+.estado-azul {
+    background: #e3f2fd;
+    color: #1565c0;
+    border: 1px solid #bbdefb;
+}
+
+.estado-gris-oscuro {
+    background: #cfd8dc;
+    color: #37474f;
+    border: 1px solid #90a4ae;
+}
+
+
+
 
 /* ============================================================
    Cargando

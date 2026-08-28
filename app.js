@@ -31,8 +31,26 @@ function cargarDatos() {
     });
 }
 
+function esNoAplica(valor) {
+    if (!valor || typeof valor !== 'string') return false;
+    const normalizado = valor.toLowerCase().trim().replace(/[\s\-_/.]/g, '');
+    return normalizado === 'noaplica' || normalizado === 'na' || normalizado === 'noaplicable';
+}
+
+function esDiscontinuada(valor) {
+    if (!valor || typeof valor !== 'string') return false;
+    const normalizado = valor.toLowerCase().trim().replace(/[\s\-_/.]/g, '');
+    return normalizado.includes('discontinua');
+}
+
+function formatearFechaColumna(fechaRaw) {
+    if (esNoAplica(fechaRaw) || esDiscontinuada(fechaRaw)) return '—';
+    if (!fechaRaw || fechaRaw.trim() === '-' || fechaRaw.trim() === '') return '?';
+    return fechaRaw;
+}
+
 function parseFecha(fechaStr) {
-    if (!fechaStr || fechaStr.trim() === '-' || fechaStr.trim() === '') return null;
+    if (!fechaStr || fechaStr.trim() === '-' || fechaStr.trim() === '' || esNoAplica(fechaStr) || esDiscontinuada(fechaStr)) return null;
     const partes = fechaStr.split('/');
     if (partes.length !== 3) return null; // Formato esperado DD/MM/YYYY
     return new Date(partes[2], partes[1] - 1, partes[0]);
@@ -44,6 +62,22 @@ function calcularEstado(item, hoy) {
             tipo: 'No hay convocatoria',
             texto: 'No hay convocatoria',
             clase: 'estado-gris'
+        };
+    }
+
+    if (esDiscontinuada(item.FECHA_APERTURA) || esDiscontinuada(item.FECHA_CIERRE)) {
+        return {
+            tipo: 'Discontinuada',
+            texto: 'Discontinuada',
+            clase: 'estado-gris-oscuro'
+        };
+    }
+
+    if (esNoAplica(item.FECHA_APERTURA) || esNoAplica(item.FECHA_CIERRE)) {
+        return {
+            tipo: 'Informativo',
+            texto: 'Informativo',
+            clase: 'estado-azul'
         };
     }
 
@@ -115,7 +149,7 @@ function poblarFiltros() {
     });
 
     const selectEstado = document.getElementById('filtro-estado');
-    const ordenPreferido = ['Abierta', 'Próxima a abrir', 'Falta información', 'Vencida', 'No hay convocatoria'];
+    const ordenPreferido = ['Abierta', 'Próxima a abrir', 'Informativo', 'Falta información', 'Vencida', 'No hay convocatoria', 'Discontinuada'];
     const estadosOrdenados = Array.from(estados).sort((a, b) => {
         const idxA = ordenPreferido.indexOf(a);
         const idxB = ordenPreferido.indexOf(b);
@@ -160,8 +194,8 @@ function renderizarTarjetas() {
     }
 
     filtrados.forEach(item => {
-        const fechaAperturaStr = item.FECHA_APERTURA && item.FECHA_APERTURA !== '-' ? item.FECHA_APERTURA : '?';
-        const fechaCierreStr = item.FECHA_CIERRE && item.FECHA_CIERRE !== '-' ? item.FECHA_CIERRE : '?';
+        const fechaAperturaStr = formatearFechaColumna(item.FECHA_APERTURA);
+        const fechaCierreStr = formatearFechaColumna(item.FECHA_CIERRE);
 
         const estadoInfo = calcularEstado(item, hoy);
 
