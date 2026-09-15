@@ -102,8 +102,8 @@ function calcularEstado(item, hoy) {
 
     if (hoy > fechaCierre) {
         return {
-            tipo: 'Vencida',
-            texto: 'Vencida',
+            tipo: 'Cerrada',
+            texto: 'Cerrada',
             clase: 'estado-gris'
         };
     }
@@ -149,7 +149,7 @@ function poblarFiltros() {
     });
 
     const selectEstado = document.getElementById('filtro-estado');
-    const ordenPreferido = ['Abierta', 'Apertura programada', 'Informativo', 'Falta información', 'Vencida', 'No hay convocatoria', 'Discontinuada'];
+    const ordenPreferido = ['Abierta', 'Apertura programada', 'Informativo', 'Falta información', 'Cerrada', 'No hay convocatoria', 'Discontinuada'];
     const estadosOrdenados = Array.from(estados).sort((a, b) => {
         const idxA = ordenPreferido.indexOf(a);
         const idxB = ordenPreferido.indexOf(b);
