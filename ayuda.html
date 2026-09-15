@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ayuda y Guía — Convocatorias</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header>
+        <div class="header-content">
+            <div class="header-titulos">
+                <h1>Ayuda y Guía de Uso</h1>
+            </div>
+            <nav class="header-nav">
+                <a href="index.html" class="nav-btn">← Volver al Sitio de Convocatorias</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="ayuda-container">
+
+            <!-- Origen de los datos -->
+            <section class="ayuda-card">
+                <h2>Origen y Actualización de los Datos</h2>
+                <p>
+                    El sitio de <strong>Convocatorias</strong> es una herramienta desarrollada por el <strong>Instituto
+                        LEICI</strong> para centralizar y facilitar el seguimiento de oportunidades de financiamiento,
+                    subsidios y becas de investigación.
+                </p>
+                <p>
+                    Los datos que se visualizan en esta aplicación provienen de una <strong>planilla interna en Google
+                        Sheets</strong> que se publica de forma sincronizada mediante un enlace CSV. Cada vez que se
+                    carga o recarga la página, la aplicación lee los datos más recientes en tiempo real.
+                </p>
+
+                <div class="ayuda-alerta">
+                    <strong>⚠️ Actualización:</strong> La información es confiable y fidedigna en tanto que la planilla
+                    de origen se mantenga actualizada. Si un organismo prorroga una fecha de cierre, anuncia una nueva
+                    convocatoria o suspende una existente, ese cambio debe cargarse en la planilla para que se refleje
+                    en esta plataforma.
+                </div>
+            </section>
+
+            <!-- Estados y Etiquetas -->
+            <section class="ayuda-card">
+                <h2>Estados de las Convocatorias</h2>
+                <p>
+                    El estado de cada convocatoria no se define de forma estática; el sistema lo calcula automáticamente
+                    comparando la fecha del día con los datos ingresados en la planilla:
+                </p>
+
+                <table class="tabla-ayuda-estados">
+                    <thead>
+                        <tr>
+                            <th style="width: 200px;">Etiqueta / Estado</th>
+                            <th>Criterio y Significado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="badge estado-verde">Abierta (cierra en X días)</span></td>
+                            <td>La convocatoria se encuentra vigente para postular. Se calcula y muestra de forma
+                                automática la cantidad de días corridos restantes hasta la fecha límite de cierre.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge estado-violeta">Apertura programada</span></td>
+                            <td>La convocatoria fue anunciada oficialmente, pero la fecha de apertura es futura con
+                                respecto al día de hoy.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge estado-gris">Cerrada</span></td>
+                            <td>La fecha límite de cierre ya ha transcurrido. La convocatoria queda registrada como
+                                referencia histórica.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge estado-azul">Informativo</span></td>
+                            <td>Oportunidades de carácter continuo, de ventanilla permanente o que no poseen un
+                                calendario estricto de apertura/cierre (en la planilla figuran como <em>"No aplica"</em>
+                                o similar).</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge estado-naranja">Falta información</span></td>
+                            <td>La convocatoria está identificada, pero aún faltan cargar las fechas
+                                exactas de apertura o cierre (indicadas con <em>"?"</em> o vacías en la planilla).</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge estado-gris">No hay convocatoria</span></td>
+                            <td>Líneas o programas monitoreados que no poseen ninguna convocatoria abierta en el ciclo
+                                actual.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge estado-gris-oscuro">Discontinuada</span></td>
+                            <td>Convocatorias o líneas de financiamiento que han sido dadas de baja o canceladas por el
+                                organismo emisor.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Columnas y Filtros -->
+            <section class="ayuda-card">
+                <h2>Interpretación de Columnas y Filtros</h2>
+
+                <h3>Columnas de la tabla:</h3>
+                <ul class="lista-guia">
+                    <li><strong>Institución:</strong> Organismo responsable de la convocatoria (por ejemplo: CONICET,
+                        ANPCyT, CIC, UNLP, etc.).</li>
+                    <li><strong>Categoría:</strong> Tipo de instrumento (Proyectos, Equipamiento, Recursos Humanos,
+                        Movilidad, etc.).</li>
+                    <li><strong>Nombre:</strong> Denominación formal de la convocatoria.</li>
+                    <li><strong>Estado:</strong> Etiqueta calculada según las fechas vigentes.</li>
+                    <li><strong>Apertura / Cierre:</strong> Fechas en formato <code>DD/MM/AAAA</code>. Si figura
+                        <code>—</code> significa que no aplica calendario (permanente/discontinuada), y si figura
+                        <code>?</code> indica fecha a confirmar.
+                    </li>
+                    <li><strong>Enlace:</strong> Vínculo oficial a las bases, condiciones o formulario de postulación.
+                    </li>
+                </ul>
+
+                <h3>Uso de los filtros:</h3>
+                <p>
+                    En la parte superior de la página principal se disponen tres selectores desplegables:
+                    <strong>Institución</strong>, <strong>Categoría</strong> y <strong>Estado</strong>. Pueden
+                    combinarse libremente para encontrar rápidamente convocatorias de interés (por ejemplo: filtrar por
+                    tu organismo de pertenencia y seleccionar estado <em>"Abierta"</em>).
+                </p>
+            </section>
+
+        </div>
+    </main>
+
+</body>
+
+</html>
